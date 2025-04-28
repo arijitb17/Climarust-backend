@@ -97,13 +97,22 @@ async fn get_weather(query: web::Query<CityQuery>) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    println!("🚀 Server running at http://localhost:8080");
+    use std::env;
+
+    // Get the PORT from environment variable (default to 8080 if not set)
+    let port: u16 = env::var("PORT")
+        .unwrap_or_else(|_| "8080".to_string())
+        .parse()
+        .expect("PORT must be a number");
+
+    println!("🚀 Server running at http://0.0.0.0:{port}");
+
     HttpServer::new(|| {
         App::new()
-            .wrap(Cors::permissive()) 
+            .wrap(Cors::permissive())
             .service(get_weather)
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("0.0.0.0", port))?  // <-- Notice: bind to 0.0.0.0, not 127.0.0.1
     .run()
     .await
 }
